@@ -34,6 +34,7 @@ function ans1Parser(content, ans1Template, ans1) {
     return ans1;
 }
 exports.ans1Parser = ans1Parser;
+//TODO maybe it cen be better calculated 
 function calculateSetObjects(content) {
     let self = extractObject(content);
     let count = 1;

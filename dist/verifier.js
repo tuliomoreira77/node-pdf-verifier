@@ -4,7 +4,7 @@
  * and in RFC 5652, RFC 5280
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractCmsFromPdf = exports.extractSignatureData = exports.extractSignersInfoNew = void 0;
+exports.extractSignersInfo = void 0;
 /**Biblioteca de verificacao de assinaturas digitais
  * Criada por tuliomoreira77@gmail.com
  * Os padrões podem ser encontrados na documentacao da adobe https://www.adobe.com/devnet-docs/etk_deprecated/tools/DigSig/Acrobat_DigitalSignatures_in_PDF.pdf
@@ -13,7 +13,7 @@ exports.extractCmsFromPdf = exports.extractSignatureData = exports.extractSigner
 const asn1 = require("./ans1");
 const crypto = require("crypto");
 const utils = require("./Utils");
-function extractSignersInfoNew(pdf) {
+function extractSignersInfo(pdf) {
     let signers = [];
     let watchDogCounter = 0;
     let cmsInfo = { cms: null, signatureBytes: null, offset: 0 };
@@ -43,7 +43,7 @@ function extractSignersInfoNew(pdf) {
     }
     return signers;
 }
-exports.extractSignersInfoNew = extractSignersInfoNew;
+exports.extractSignersInfo = extractSignersInfo;
 function extractSignatureData(pdfBuffer, offset) {
     var cmsInfo;
     const byteRangePattern = '/ByteRange';
@@ -80,7 +80,6 @@ function extractSignatureData(pdfBuffer, offset) {
     };
     return cmsInfo;
 }
-exports.extractSignatureData = extractSignatureData;
 /**Extrai as assinaturas de um pdf assinado */
 function extractCmsFromPdf(data) {
     var cmsArray = [];
@@ -109,5 +108,4 @@ function extractCmsFromPdf(data) {
     }
     return cmsArray;
 }
-exports.extractCmsFromPdf = extractCmsFromPdf;
 //# sourceMappingURL=verifier.js.map

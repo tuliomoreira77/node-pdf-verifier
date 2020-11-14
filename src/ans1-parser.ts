@@ -36,6 +36,8 @@ export function ans1Parser(content:Buffer, ans1Template:any, ans1:any) {
     return ans1;
 }
 
+
+//TODO maybe it cen be better calculated 
 export function calculateSetObjects(content:Buffer) {
     let self = extractObject(content);
     let count = 1;
