@@ -1,10 +1,5 @@
-export interface Ans1Object {
-    oid:Buffer,
-    name:string,
-    child?:Ans1Object
-}
 
-export function ans1Parser(content:Buffer, ans1Template:any, ans1?:any) {
+export function ans1Parser(content:Buffer, ans1Template:any, ans1:any) {
     let fields = Object.keys(ans1Template);
     
     let self = extractObject(content);
