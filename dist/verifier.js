@@ -10,7 +10,7 @@ exports.extractSignersInfo = void 0;
  * Os padrões podem ser encontrados na documentacao da adobe https://www.adobe.com/devnet-docs/etk_deprecated/tools/DigSig/Acrobat_DigitalSignatures_in_PDF.pdf
  * e nas RFC 5652 e RFC 5280
  */
-const asn1 = require("./ans1");
+const asn1 = require("./asn1");
 const crypto = require("crypto");
 const utils = require("./Utils");
 function extractSignersInfo(pdf) {
@@ -33,7 +33,7 @@ function extractSignersInfo(pdf) {
             },
             signerInfo: {
                 name: asn1.extractCommonName(_ans1.cms.signedData.certificates.certificate.tbsCertificate.subject),
-                cpf: asn1.extractSignerDocument(_ans1.cms.signedData.certificates.certificate.tbsCertificate.extensions),
+                documentNumber: asn1.extractSignerDocument(_ans1.cms.signedData.certificates.certificate.tbsCertificate.extensions),
             },
             signatureInfo: {
                 verified: utils.verifyCmsSignatureWithSignedAtt(_ans1.cms.signedData.signerInfos.signerInfo.signedAttr, _ans1.cms.signedData.signerInfos.signerInfo.signature, publicKey, cmsInfo.signatureBytes),

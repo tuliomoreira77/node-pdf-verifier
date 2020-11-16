@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPublicKeyPem = exports.signData = exports.verifyData = exports.decryptSignature = exports.encryptData = exports.createHashHex = exports.createHash = exports.verifyCmsSignatureWithSignedAtt = void 0;
 const rsa = require("node-rsa");
 const crypto = require("crypto");
-const ans1 = require("./ans1");
+const ans1 = require("./asn1");
 function verifyCmsSignatureWithSignedAtt(signedAtt, signature, publicKey, messageDigest) {
     let formatedSignedAtt = createHash(Buffer.concat([ans1.forgeAns1Header(0x31, signedAtt.length), signedAtt]));
     let decryptedSig = decryptSignature(signature, publicKey);

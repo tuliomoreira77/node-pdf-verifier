@@ -10,7 +10,7 @@
  * e nas RFC 5652 e RFC 5280
  */
 
-import * as asn1 from './ans1';
+import * as asn1 from './asn1';
 import * as crypto from 'crypto';
 import * as utils from './Utils';
 
@@ -26,7 +26,7 @@ export interface pdfSignInfo {
     }
     signerInfo: {
         name: any,
-        cpf: string,
+        documentNumber: string, //Here is an brazilian cretificate (ICP-Brasil) specific standart
         signingTime?: string,
     }
     signatureInfo: {
@@ -55,7 +55,7 @@ export function extractSignersInfo(pdf:Buffer) {
             },
             signerInfo: {
                 name: asn1.extractCommonName(_ans1.cms.signedData.certificates.certificate.tbsCertificate.subject),
-                cpf: asn1.extractSignerDocument(_ans1.cms.signedData.certificates.certificate.tbsCertificate.extensions),
+                documentNumber: asn1.extractSignerDocument(_ans1.cms.signedData.certificates.certificate.tbsCertificate.extensions),
             },
             signatureInfo: {
                 verified: utils.verifyCmsSignatureWithSignedAtt(

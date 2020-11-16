@@ -1,6 +1,6 @@
 import * as rsa from 'node-rsa';
 import * as crypto from 'crypto';
-import * as ans1 from './ans1';
+import * as ans1 from './asn1';
 
 
 export function verifyCmsSignatureWithSignedAtt(signedAtt:any, signature:any, publicKey:any, messageDigest:any) {

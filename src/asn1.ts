@@ -1,5 +1,9 @@
 import * as Utils from './utils';
-import * as parser from './ans1-parser';
+import * as parser from './asn1-parser';
+
+/**Utilities to decodes the CMS content and certificates
+ * 
+ */
 
 /**Utilidades para decodificar os conteudos de assinaturas CMS e certificados digitais codificados em ANS1
  * 
@@ -135,9 +139,9 @@ export function decodeDigestInfo(digestInfo:Buffer) {
     var cursor = {value: 0};
     cursor.value = digestInfo.indexOf(oidSequence);
     if(cursor.value == -1) {
-        throw 'Erro ao encontrar "DigestInfo"';
+        throw new Error('Cannot find DigestInfo');
     }
-    let dInfo = decodeAns1Length(digestInfo.slice(cursor.value));
+    let dInfo = parser.decodeAns1Length(digestInfo.slice(cursor.value));
     cursor.value = cursor.value + dInfo.infoLength;
     let digestInfoReponse = {
         digestAlgorithm: extractObject(cursor, digestInfo, oidSequence),
@@ -179,13 +183,16 @@ export function getCertValidity(tbsCert:Buffer) {
 /**Busca o commonName de um certificado
  * cada certificado na cadeia possui um, o ultimo 'commonName' na cadeia corresponde ao do dono do certificado
  */
+/**Finds the commoName of the certificate
+ * the last commonName in chain is about the onwer of the certificate
+ */
 export function extractCommonName(data:Buffer) {
     var commonNames = [];
     var cursor = 0;
     var index = data.indexOf(commonNameOid, cursor);
     while(index != -1) {
         cursor = index + commonNameOid.length;
-        var length = decodeAns1Length(data.slice(cursor));
+        var length = parser.decodeAns1Length(data.slice(cursor));
         var commonName = data.slice(cursor + length.infoLength, cursor + length.infoLength + length.length);
         commonNames.push(commonName.toString());
         index = data.indexOf(commonNameOid, cursor);
@@ -193,33 +200,43 @@ export function extractCommonName(data:Buffer) {
     return commonNames[commonNames.length -1];
 }
 
-//**Implementar verificacao de pessoa juridica */
-export function extractSignerDocument(data:Buffer) {
-    var startIndex = 0;
+/**
+ * Here is some brazilian standats specifics
+ * The signer document number (CPF) is on the extensions of the certificate 
+ * */
 
-    //var oidFirstIndex = data.indexOf(oidDocumentNumberCnpj, startIndex);
-    //if(oidFirstIndex == -1) {
-       var oidFirstIndex = data.indexOf(oidDocumentNumberCpf, startIndex);
-    //}
-    if(oidFirstIndex == -1) {
-        throw 'Erro ao encontrar documento.';
+//** TODO Implementar verificacao de pessoa juridica */
+export function extractSignerDocument(data:Buffer) {
+    try {
+        var startIndex = 0;
+
+        //var oidFirstIndex = data.indexOf(oidDocumentNumberCnpj, startIndex);
+        //if(oidFirstIndex == -1) {
+        var oidFirstIndex = data.indexOf(oidDocumentNumberCpf, startIndex);
+        //}
+        if(oidFirstIndex == -1) {
+            throw new Error('Error finding documentNumber');
+        }
+        var oidIndex = oidFirstIndex + oidDocumentNumberCpf.length + 4;
+        var startDocumentNumber = oidIndex + 8;
+        var documentNumber = data.slice(startDocumentNumber, startDocumentNumber + 11);
+        return documentNumber.toString();
+    } catch(error) {
+        console.log(error);
+        return "";
     }
-    var oidIndex = oidFirstIndex + oidDocumentNumberCpf.length + 4;
-    var startDocumentNumber = oidIndex + 8;
-    var documentNumber = data.slice(startDocumentNumber, startDocumentNumber + 11);
-    return documentNumber.toString();
 }
 
 export function extractSignerPublicKey(data:Buffer) {
 
     var oidIndex = data.indexOf(publicKeyOid, 0) + 13;
-    var length = decodeAns1Length(data.slice(oidIndex));
+    var length = parser.decodeAns1Length(data.slice(oidIndex));
 
     var cursor = oidIndex+length.infoLength+1;
-    length = decodeAns1Length(data.slice(cursor));
+    length = parser.decodeAns1Length(data.slice(cursor));
 
     cursor = cursor + length.infoLength;
-    length = decodeAns1Length(data.slice(cursor));
+    length = parser.decodeAns1Length(data.slice(cursor));
     
     cursor = cursor + length.infoLength;
     var publicKey = data.slice(cursor, cursor+length.length).toString('hex');
@@ -243,35 +260,10 @@ export function extractObject(cursor:{value:number}, cms:Buffer, objOid?:Buffer)
             throw 'O objeto não corresponde ao procurado';
         }
     }
-    let objInfo = decodeAns1Length(cms.slice(cursor.value));
+    let objInfo = parser.decodeAns1Length(cms.slice(cursor.value));
     let obj = cms.slice(cursor.value + objInfo.infoLength, (cursor.value + objInfo.infoLength) + objInfo.length);
     cursor.value = cursor.value + objInfo.totalLength;
     return obj;
-}
-
- /**Decodifica um comprimento ans1, retorna o comprimento da instrucao e o comprimento do conteudo
- * length: Comprimento do conteudo
- * infoLength: Comprimento da insctrucao
- */
-export function decodeAns1Length(data:Buffer) {
-    var length = 0;
-    var infoLength = 0;
-    if(data[1] < 0x80) {
-        length = data[1];
-        infoLength = 2;
-    } else {
-        const lengthByteSize = data[1] & 0x7F;
-        length = 0;
-        for(var j=0; j < lengthByteSize; j++) {
-            length = (length << 8) + data[2+j]
-        }
-        infoLength = lengthByteSize+2;
-    }
-    return {
-        length: length,
-        infoLength: infoLength,
-        totalLength: length + infoLength,
-    }
 }
 
 export function forgeDigestInfo(hash:Buffer) {
@@ -289,8 +281,8 @@ export function forgeSigningCertificate(certificate:Buffer) {
     return signingCertificate; 
 }
 
-
-/**Cria um Objeto ANS.1 */
+/**Crate an ASN1 object */
+/**Cria um Objeto ASN.1 */
 export function createAsn1Obj(headerOid:Buffer, content:Buffer) {
     let lenght = content.length;
     if(lenght > 127) {
@@ -303,7 +295,7 @@ export function createAsn1Obj(headerOid:Buffer, content:Buffer) {
     }
 }
 
-
+/**Create ANS1 Header */
 /**Cria um Header ANS.1 generico */
 export function forgeAns1Header(firstByte:number ,lenght:number) {
     if(lenght > 127) {
