@@ -4,12 +4,14 @@ A digital signature verifier for pdf documents.
 How to use:
 Just pass the pdf as a Buffer and call the method 'verifyPdf(pdf:Buffer)'.
 
+The signature is valid (the content is not modified) if0 the field "signatureInfo.verified" will be true, false otherwise. 
+
 **IMPORTANT: the certificate is not verified, only the informations about it are extracted and the content signture is verified using the publicKey. Maybe in future I will add the certificate chain verification**
 
 Returned type:
 ```typescript
 interface pdfSignInfo {
-    cms?: Buffer 
+    cms?: Buffer //Original CMS content extract from inside PDF
     certificateInfo: {
         issuer: any,
         validity: {
@@ -24,7 +26,7 @@ interface pdfSignInfo {
         signingTime?: string,
     }
     signatureInfo: {
-        verified: boolean,   
+        verified: boolean, //Here will be  true if the signature is valid
     }
 }
 
