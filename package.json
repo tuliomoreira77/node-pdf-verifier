@@ -1,6 +1,6 @@
 {
   "name": "node-pdf-verifier",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An pdf CMS signature verifier",
   "keywords": ["pdf", "signature", "verifier", "digital signature", "cms"],
   "homepage": "https://github.com/tuliomoreira77/node-pdf-verifier",
