@@ -12,7 +12,7 @@ exports.extractSignersInfo = void 0;
  */
 const asn1 = require("./asn1");
 const crypto = require("crypto");
-const utils = require("./Utils");
+const utils = require("./utils");
 function extractSignersInfo(pdf) {
     let signers = [];
     let watchDogCounter = 0;
