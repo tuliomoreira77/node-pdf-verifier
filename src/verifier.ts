@@ -12,7 +12,7 @@
 
 import * as asn1 from './asn1';
 import * as crypto from 'crypto';
-import * as utils from './Utils';
+import * as utils from './utils';
 
 export interface pdfSignInfo {
     cms?: Buffer 
